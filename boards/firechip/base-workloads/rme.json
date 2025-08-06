@@ -1,0 +1,9 @@
+{
+    "name" : "rme",
+    "base" : "br-base.json",
+    "workdir": "rme",
+    "overlay" : "overlay",
+    "host-init" : "host-init.sh",
+    "guest-init" : "guest-init.sh",
+    "rootfs-size": "8GB"
+}

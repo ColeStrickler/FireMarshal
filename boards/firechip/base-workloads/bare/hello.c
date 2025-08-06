@@ -1,0 +1,199 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+#define WRITE_BOOL(addr, value)(*(bool*)(addr) = value)
+#define WRITE_UINT8(addr, value)(*(uint8_t*)(addr) = value)
+#define WRITE_UINT16(addr, value)(*(uint16_t*)(addr) = value)
+#define WRITE_UINT32(addr, value)(*(uint32_t*)(addr) = value)
+#define WRITE_UINT64(addr, value)(*(uint64_t*)(addr) = value)
+
+#define READ_BOOL(addr)(*(bool*)(addr))
+#define READ_UINT8(addr)(*(uint8_t*)(addr))
+#define READ_UINT16(addr)(*(uint16_t*)(addr))
+#define READ_UINT32(addr)(*(uint32_t*)(addr))
+#define READ_UINT64(addr)(*(uint64_t*)(addr))
+
+
+#define RME_START 			0x110000000
+#define RME_EN				0x3000000
+#define RME_ROWSIZE			(RME_EN + 0x10)
+#define RME_EN_COL			(RME_EN + 0x30)
+#define RME_COL_WIDTH		(RME_EN + 0x40)
+#define RME_COL_OFFSET(i)	(RME_EN + i * 0x10 + 0x48)
+#define CACHE_SIZE 1024*1024
+#define ROW_COUNT 43690
+#define COL_WIDTH 4
+#define COL_COUNT 3
+#define ROW_SIZE 64
+
+void init_rme_config()
+{
+	WRITE_UINT32(RME_ROWSIZE, ROW_SIZE);
+	while(READ_UINT32(RME_ROWSIZE) != ROW_SIZE);
+	WRITE_UINT16(RME_EN_COL, COL_COUNT);
+	WRITE_UINT16(RME_COL_WIDTH, COL_WIDTH);
+	WRITE_UINT16(RME_COL_OFFSET(0), 0);
+	WRITE_UINT16(RME_COL_OFFSET(1), 32);
+	WRITE_UINT16(RME_COL_OFFSET(2), 48);
+}
+
+
+void init_data()
+{
+	// write some initial data
+        uint64_t addr = RME_START;
+        for (int i = 0;  i < ROW_COUNT; i++)
+        {
+            *(uint64_t*)addr = 0x1169223344667788;
+			*(uint64_t*)(addr + 0x8) = 0x99aabbccddeeff16;
+			addr = addr + 0x40;        
+		}
+}
+
+int flush_cache()
+{
+	int ret = 0;
+	uint64_t addr = 0x160000000;
+	for (uint64_t i = 0; i < CACHE_SIZE*3; i += 0x40)
+	{
+		int value = *(int*)(addr + i);
+		ret += value;		
+	}
+	return ret;
+}
+
+int rme_enable()
+{
+	int ret = *(bool*)(RME_EN);
+	*(bool*)(RME_EN) = 1;
+	return ret;
+}
+
+
+
+
+static inline uint64_t readData(int col_width, unsigned char* addr)
+{
+  switch(col_width)
+  {
+    case 1: return READ_UINT8(addr);
+    case 2: return READ_UINT16(addr);
+    case 4: return READ_UINT32(addr);
+    case 8: return READ_UINT64(addr);
+	case 16: return READ_UINT64(addr) + READ_UINT64((uint64_t)addr + 0x8);
+    default:
+    {
+
+		return 0;
+    }
+  }
+}
+
+
+void initConfigAGU()
+{
+WRITE_UINT8(0x0000000004000024, 0);
+WRITE_UINT8(0x000000000400001c, 0);
+WRITE_UINT8(0x0000000004000000, 8);
+WRITE_UINT8(0x00000000040003fc, 8);
+WRITE_UINT8(0x0000000004000020, 9);
+WRITE_UINT8(0x00000000040003fd, 9);
+WRITE_UINT8(0x0000000004000018, 10);
+WRITE_UINT8(0x00000000040003fe, 10);
+WRITE_UINT8(0x0000000004000004, 11);
+WRITE_UINT8(0x00000000040003ff, 11);
+WRITE_UINT8(0x0000000004000030, 4);
+WRITE_UINT8(0x0000000004000050, 4);
+WRITE_UINT8(0x0000000004000054, 0);
+WRITE_UINT8(0x0000000004000058, 0);
+WRITE_UINT8(0x000000000400005c, 8);
+WRITE_UINT8(0x000000000400042c, 8);
+WRITE_UINT8(0x0000000004000070, 0);
+WRITE_UINT8(0x0000000004000060, 0);
+WRITE_UINT8(0x0000000004000080, 8);
+WRITE_UINT8(0x000000000400045c, 8);
+WRITE_UINT8(0x0000000004000090, 4);
+WRITE_UINT8(0x00000000040000b0, 4);
+WRITE_UINT8(0x00000000040000d0, 8);
+WRITE_UINT8(0x00000000040004bc, 8);
+WRITE_UINT8(0x0000000004000110, 8);
+WRITE_UINT8(0x00000000040004ec, 8);
+
+WRITE_UINT32(0x000000000400090c,0x0000000000000000);
+
+WRITE_UINT32(0x0000000004000924,0x0000000000000436);
+
+WRITE_UINT64(0x0000000004000968,0x00000000f2faa1a9);
+
+WRITE_UINT32(0x0000000004000970,0x000000000000000e);
+
+WRITE_UINT8(0x0000000004000974,0x0000000000000000);
+
+WRITE_UINT32(0x0000000004000908,0x0000000000000000);
+
+WRITE_UINT32(0x0000000004000920,0x000000000000077e);
+
+WRITE_UINT64(0x0000000004000978,0x0000000071c71c73);
+
+WRITE_UINT32(0x0000000004000980,0x0000000000000002);
+
+WRITE_UINT8(0x0000000004000984,0x0000000000000000);
+
+WRITE_UINT32(0x0000000004000904,0x0000000000000000);
+
+WRITE_UINT32(0x000000000400091c,0x0000000000000003);
+
+WRITE_UINT64(0x0000000004000988,0x0000000055555556);
+
+WRITE_UINT32(0x0000000004000990,0x0000000000000000);
+
+WRITE_UINT8(0x0000000004000994,0x0000000000000000);
+
+WRITE_UINT32(0x0000000004000900,0x0000000000000000);
+
+WRITE_UINT32(0x0000000004000918,0x0000000000000003);
+
+WRITE_UINT64(0x0000000004000998,0x0000000100000000);
+
+WRITE_UINT32(0x00000000040009a0,0x0000000000000000);
+
+WRITE_UINT8(0x00000000040009a4,0x0000000000000000);
+WRITE_UINT32(0x000000000400093c,0x000000000000077e);WRITE_UINT32(0x0000000004000938,0x0000000000000436);WRITE_UINT32(0x0000000004000934,0x0000000000000004);WRITE_UINT32(0x0000000004000930,0x0000000000000005);
+WRITE_UINT8(0x0000000004000f01,0x0000000000000001);
+
+WRITE_UINT8(0x0000000004000f02,0x0000000000000004);
+
+
+}
+
+
+int main(void)
+{
+   // switch_to_s_mode();
+	init_rme_config();
+    initConfigAGU();
+	//init_data();
+	//int ret = flush_cache();
+	
+
+	
+	while(rme_enable() != 1)
+	{
+
+	}
+	//init_data();
+	//int flush = flush_cache();
+	//int en = rme_enable();	
+	uint64_t x = 0;
+	uint64_t addr = 0;
+    uint64_t last_addr = 0;
+    volatile uint64_t data;
+	for(int i = 0; i < 100; i++){
+        x += READ_UINT32(RME_START + i*0x40);
+    }
+	//x += *(uint64_t*)(RME_START);
+//	printf("Hello World 0x%lx %d\n", x, ret);	
+	return x;
+}
+
+
