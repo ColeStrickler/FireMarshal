@@ -16,3 +16,6 @@
 [submodule "boards/firechip/drivers/iceblk-driver"]
 	path = boards/firechip/drivers/iceblk-driver
 	url = https://github.com/firesim/iceblk-driver.git
+[submodule "boards/firechip/base-workloads/workloads/relational-memory-fsim"]
+	path = boards/firechip/base-workloads/workloads/relational-memory-fsim
+	url = https://github.com/ColeStrickler/relational-memory-fsim.git
