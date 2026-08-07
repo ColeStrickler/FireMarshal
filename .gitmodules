@@ -22,3 +22,6 @@
 [submodule "boards/firechip/base-workloads/workloads/matmul"]
 	path = boards/firechip/base-workloads/workloads/matmul
 	url = https://github.com/ColeStrickler/dtl_benchmarks.git
+[submodule "boards/firechip/base-workloads/workloads/dtu-driver"]
+	path = boards/firechip/base-workloads/workloads/dtu-driver
+	url = https://github.com/ColeStrickler/dtu-runtime-driver.git
