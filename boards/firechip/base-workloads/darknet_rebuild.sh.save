@@ -1,0 +1,16 @@
+#!/bin/bash
+
+
+cd workloads/darknet-dtu/
+
+make clean && make
+
+
+./build_cpp.sh
+
+mv libdarknet.so 
+mv app ../../rme/overlay/root/darknet_test
+
+cd ../../
+
+./build_workload.sh rme.json

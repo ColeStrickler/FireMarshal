@@ -19,3 +19,6 @@
 [submodule "boards/firechip/base-workloads/workloads/relational-memory-fsim"]
 	path = boards/firechip/base-workloads/workloads/relational-memory-fsim
 	url = https://github.com/ColeStrickler/relational-memory-fsim.git
+[submodule "boards/firechip/base-workloads/workloads/matmul"]
+	path = boards/firechip/base-workloads/workloads/matmul
+	url = https://github.com/ColeStrickler/dtl_benchmarks.git
